@@ -106,7 +106,6 @@ function gen_testcase(operation, x, y, modulus, modinv) {
     console.log(ops.join(""))
 }
 
-// modulus from bn128, modinv from bls12381
 const bls12381_modulus = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaabn
 const bls12381_modinv = 0x89f3fffcfffcfffdn
 

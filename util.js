@@ -104,16 +104,20 @@ function gen_swap(value) {
     return to_padded_hex(0x90 + value - 1)
 }
 
-// mstore for arbitrary sized big-endian value
+// generate multiple mstores for arbitrary sized big-endian value
 function gen_mstore_multi(offset, value) {
-    const zero_fill_len = (value.length / 2) % 32
-    const occupied_words = zero_fill_len + (value.length / 2)
+    debugger
+    if (value.length <= 64) {
+        return gen_mstore(offset, value)
+    }
 
-    let filled_value = value + '0'.repeat(zero_fill_len * 2)
+    const zero_fill_len = 64 - (value.length % 64)
+
+    let filled_value = value + '0'.repeat(zero_fill_len)
     let result = []
 
-    for (let i = 0; i < filled_value.length / 32; i++) {
-        result.push(gen_mstore(offset + i * 32, filled_value.slice(i, i + 32)))
+    for (let i = 0; i < filled_value.length / 64; i++) {
+        result.push(gen_mstore(offset + i * 64, filled_value.slice(i * 64, (i + 1) * 64)))
     }
 
     return result.join("")
