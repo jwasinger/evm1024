@@ -50,7 +50,7 @@ function encode_field_params(modulus, modinv) {
 
         fill_len = 16 - modinv_string.length
         modinv_string = '0'.repeat(fill_len) + modinv_string
-        result += modinv_string
+        result += reverse_endianness(modinv_string)
     } else if (typeof(modinv) != 'undefined') {
         throw("modinv parameter must be a bigint")
     }
@@ -58,12 +58,29 @@ function encode_field_params(modulus, modinv) {
     return result
 }
 
-function gen_mulmodmont_test_bytecode(x, y, mod, modinv) {
-    const field_params_offset = 0
-    let ops = []
+function encode_value(value, num_limbs) {
 
-    ops += gen_emplace_field_params(mod, modinv, field_params_offset)
 }
 
 // modulus from bn128, modinv from bls12381
 let encoded = encode_field_params(21888242871839275222246405745257275088548364400416034343698204186575808495617n, 0x89f3fffcfffcfffdn)
+console.log(encoded)
+
+function gen_testcase(operation, x, y, modulus, modinv) {
+    ops = []
+
+    const num_limbs = calc_num_limbs(modulus)
+    const out_offset = 0
+    const x_offset = out_offset + 8 * num_limbs
+    const y_offset = x_offset + 8 * num_limbs
+    const field_params_offset = y_offset + 8 * num_limbs
+
+    ops += [
+        gen_mstore_multi(field_params_offset, encode_field_params(modulus, modinv)),
+        gen_mstore_multi(offset_x, encode_value(offset_x, num_limbs)),
+        gen_mstore_multi(offset_y, encode_value(offset_y, num_limbs)),
+        gen_mstore_multi(offset_out, encode_value(0, num_limbs)),
+        gen_evm384_op(operation, offset_out, offset_x, offset_y, field_params_offset),
+        gen_return(offset_out, num_limbs * 8)
+    ]
+}
