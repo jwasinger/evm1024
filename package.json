@@ -1,0 +1,21 @@
+{
+  "name": "evm384-mp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gen_testcase.js",
+  "scripts": {
+    "build": "node gen_testcase.js > test.hex",
+    "test": "./go-ethereum/build/bin/evm --codefile test.hex run | grep 0x7f202ee0640951a5f0eb674ed74980a3b5d4426e012e689b66ff1288c2c9f830a6475a277a9926d4d87f6cf748e6f705 | grep ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jwasinger/evm384-mp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jwasinger/evm384-mp/issues"
+  },
+  "homepage": "https://github.com/jwasinger/evm384-mp#readme"
+}

@@ -86,9 +86,18 @@ function gen_testcase(operation, x, y, modulus, modinv) {
     const offset_x = offset_out + 8 * num_limbs + buffering
     const offset_y = offset_x + 8 * num_limbs + buffering
     const offset_field_params = offset_y + 8 * num_limbs + buffering
+    const offset_r_inv = offset_field_params + 8 * num_limbs + buffering
+    const offset_one = offset_field_params + 8 * num_limbs + buffering
+
+    // TODO validate field params here
+
+    //TODO compute r_inv
+    const r_inv = 0
 
     let ops = [
         gen_mstore_multi(offset_field_params, encode_field_params(modulus, modinv)),
+        gen_mstore_multi(offset_one, encode_value(1n, num_limbs)),
+        gen_mstore_multi(offset_r_inv, encode_value(r_inv, num_limbs)),
         gen_mstore_multi(offset_x, encode_value(x, num_limbs)),
         gen_mstore_multi(offset_y, encode_value(y, num_limbs)),
         gen_mstore_multi(offset_out, encode_value(0, num_limbs)),
