@@ -16,11 +16,10 @@ function to_padded_hex(value) {
 // convert a uint64 to a padded little endian hex string
 function uint32_to_be_hex_string(num) {
     result = num.toString(16)
-    fill_length = 4 - result.length
+    fill_length = 8 - result.length
 
     if (fill_length > 0) {
         result = "0".repeat(fill_length) + result
-        //result = result + "0".repeat(fill_length)
     }
 
     return result
@@ -104,9 +103,23 @@ function gen_swap(value) {
     return to_padded_hex(0x90 + value - 1)
 }
 
+function reverse_endianness(val) {
+    if (val.length % 2 != 0) {
+        throw("value length must be even")
+    }
+
+    let parts = []
+    for (let i = 0; i < val.length; i += 2) {
+        parts.push(val.slice(i, i + 2))
+    }
+    parts.reverse()
+
+    return parts.join("")
+}
+
+
 // generate multiple mstores for arbitrary sized big-endian value
 function gen_mstore_multi(offset, value) {
-    debugger
     if (value.length <= 64) {
         return gen_mstore(offset, value)
     }
@@ -117,7 +130,7 @@ function gen_mstore_multi(offset, value) {
     let result = []
 
     for (let i = 0; i < filled_value.length / 64; i++) {
-        result.push(gen_mstore(offset + i * 64, filled_value.slice(i * 64, (i + 1) * 64)))
+        result.push(gen_mstore(offset + i * 32, filled_value.slice(i * 64, (i + 1) * 64)))
     }
 
     return result.join("")
