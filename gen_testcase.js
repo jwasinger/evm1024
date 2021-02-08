@@ -1,4 +1,4 @@
-const {gen_return, gen_mstore, gen_mstore_multi, gen_addmod384, gen_submod384, gen_muldmod384} = require('./util.js')
+const {gen_return, gen_mstore, gen_mstore_multi, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384} = require('./util.js')
 
 /*
 basic test does:
@@ -63,11 +63,12 @@ function encode_value(value, num_limbs) {
 function gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params) {
     let func = null
 
+    debugger
     if (operation == 'addmod384') {
         func = gen_addmod384
     } else if (operation == 'submod384') {
         func = gen_submod384
-    } else if (operation == 'muldmodmont384') {
+    } else if (operation == 'mulmodmont384') {
         func = gen_mulmodmont384
     } else {
         throw("operation must be mulmodmont384, addmod384 or submod384")
@@ -91,7 +92,7 @@ function gen_testcase(operation, x, y, modulus, modinv) {
         gen_mstore_multi(offset_x, encode_value(x, num_limbs)),
         gen_mstore_multi(offset_y, encode_value(y, num_limbs)),
         gen_mstore_multi(offset_out, encode_value(0, num_limbs)),
-        // gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params),
+        gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params),
         gen_return(offset_out, num_limbs * 8)
     ]
 
