@@ -5,7 +5,7 @@
   "main": "gen_testcase.js",
   "scripts": {
     "build": "node gen_testcase.js > test.hex",
-    "test": "./go-ethereum/build/bin/evm --codefile test.hex run | grep 0x7f202ee0640951a5f0eb674ed74980a3b5d4426e012e689b66ff1288c2c9f830a6475a277a9926d4d87f6cf748e6f705 | grep ."
+    "test": "node tester.js | grep \"passed\" | grep ."
   },
   "repository": {
     "type": "git",

@@ -65,8 +65,8 @@ function gen_callvalue() {
     return "34"
 }
 
-function gen_calldatacopy() {
-    return "37"
+function gen_calldatacopy(offset_dst, offset_src, size) {
+    return gen_push(size) + gen_push(offset_src) + gen_push(offset_dst) + "37"
 }
 
 function gen_return(offset, n_bytes) {
@@ -137,10 +137,30 @@ function gen_mstore_multi(offset, value) {
 }
 
 const constants  = {
+    OP_MSTORE8: "53",
+    OP_SHA3: "20",
     OP_ADDMOD384: "c0",
     OP_SUBMOD384: "c1",
     OP_MULMODMONT384: "c2",
 }
+
+function gen_sha3(offset, size) {
+    return gen_push(size) + gen_push(offset) + constants.OP_SHA3
+}
+
+// compare values at memory in offset_val1 and offset_val2.  write 1 (byte) to memory at offset_result if equal, 0 if not.
+function gen_equals(offset_result, offset_val1, offset_val2, num_limbs) {
+    let result = [
+        gen_sha3(offset_val1, num_limbs * 8),
+        gen_sha3(offset_val2, num_limbs * 8),
+        gen_eq(),
+        gen_push(offset_result),
+        constants.OP_MSTORE8
+    ]
+
+    return result.join("")
+}
+
 
 function encode_offsets(out, x, y, curve_params) {
     return uint32_to_be_hex_string(out) +
@@ -176,6 +196,7 @@ module.exports = {
     gen_calldatacopy: gen_calldatacopy,
     gen_return: gen_return,
     gen_revert: gen_revert,
+    gen_equals: gen_equals,
     gen_mstore_multi: gen_mstore_multi,
     constants: constants,
 }

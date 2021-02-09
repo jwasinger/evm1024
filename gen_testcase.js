@@ -1,4 +1,4 @@
-const {gen_return, gen_mstore, gen_mstore_multi, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384} = require('./util.js')
+const {gen_calldatacopy, gen_equals, gen_return, gen_mstore, gen_mstore_multi, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384} = require('./util.js')
 
 /*
 basic test does:
@@ -63,7 +63,6 @@ function encode_value(value, num_limbs) {
 function gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params) {
     let func = null
 
-    debugger
     if (operation == 'addmod384') {
         func = gen_addmod384
     } else if (operation == 'submod384') {
@@ -77,7 +76,7 @@ function gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_p
     return func(offset_out, offset_x, offset_y, offset_field_params)
 }
 
-function gen_testcase(operation, x, y, modulus, modinv) {
+function gen_testcase(operation, expected, x, y, modulus, modinv) {
 
     const buffering = 32 //mstoremulti currently only writes in multiples of 32 bytes (TODO fix that)
 
@@ -86,29 +85,32 @@ function gen_testcase(operation, x, y, modulus, modinv) {
     const offset_x = offset_out + 8 * num_limbs + buffering
     const offset_y = offset_x + 8 * num_limbs + buffering
     const offset_field_params = offset_y + 8 * num_limbs + buffering
-    const offset_r_inv = offset_field_params + 8 * num_limbs + buffering
-    const offset_one = offset_field_params + 8 * num_limbs + buffering
+    const offset_expected = offset_field_params + 8 * num_limbs + buffering
+    const offset_equality_check_result = offset_expected + 8 * num_limbs + buffering
 
     // TODO validate field params here
 
-    //TODO compute r_inv
-    const r_inv = 0
-
     let ops = [
+        gen_calldatacopy(offset_expected, 0, num_limbs * 8),
         gen_mstore_multi(offset_field_params, encode_field_params(modulus, modinv)),
-        gen_mstore_multi(offset_one, encode_value(1n, num_limbs)),
-        gen_mstore_multi(offset_r_inv, encode_value(r_inv, num_limbs)),
         gen_mstore_multi(offset_x, encode_value(x, num_limbs)),
         gen_mstore_multi(offset_y, encode_value(y, num_limbs)),
         gen_mstore_multi(offset_out, encode_value(0, num_limbs)),
         gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params),
-        gen_return(offset_out, num_limbs * 8)
+        gen_equals(offset_equality_check_result, offset_out, offset_expected, num_limbs),
+        gen_return(offset_equality_check_result, 1)
     ]
 
-    console.log(ops.join(""))
+    return ops.join("")
 }
 
+/*
 const bls12381_modulus = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaabn
 const bls12381_modinv = 0x89f3fffcfffcfffdn
 
-gen_testcase("mulmodmont384", 2n, 2n, bls12381_modulus, bls12381_modinv)
+gen_testcase("mulmodmont384", 0x7f202ee0640951a5f0eb674ed74980a3b5d4426e012e689b66ff1288c2c9f830a6475a277a9926d4d87f6cf748e6f705n, 2n, 2n, bls12381_modulus, bls12381_modinv)
+*/
+
+module.exports = {
+    gen_testcase
+}
