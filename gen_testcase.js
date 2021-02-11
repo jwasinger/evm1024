@@ -88,12 +88,11 @@ function gen_testcase(operation, expected, x, y, modulus, modinv) {
     const offset_expected = offset_field_params + 8 * num_limbs + buffering
     const offset_equality_check_result = offset_expected + 8 * num_limbs + buffering
 
-    debugger
-
     // TODO validate field params here
 
+    debugger
     let ops = [
-        gen_mstore_multi(offset_expected, expected, num_limbs * 8),
+        gen_mstore_multi(offset_expected, encode_value(expected, num_limbs)),
         gen_mstore_multi(offset_field_params, encode_field_params(modulus, modinv)),
         gen_mstore_multi(offset_x, encode_value(x, num_limbs)),
         gen_mstore_multi(offset_y, encode_value(y, num_limbs)),

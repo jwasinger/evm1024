@@ -30,6 +30,7 @@ let y = 2n
 let x_mont = mont_context.to_mont(x)
 let y_mont = mont_context.to_mont(y)
 
+debugger
 let test_case = gen_testcase("mulmodmont384", mont_context.montmul(x_mont, y_mont).toString(16), x_mont.toString(16), y_mont.toString(16), mont_context.mod, mont_context.mod_inv)
 
 console.log(test_case)
