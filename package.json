@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/jwasinger/evm384-mp/issues"
   },
-  "homepage": "https://github.com/jwasinger/evm384-mp#readme"
+  "homepage": "https://github.com/jwasinger/evm384-mp#readme",
+  "dependencies": {
+    "tempfile": "^3.0.0"
+  }
 }

@@ -1,14 +1,17 @@
 const path = require('path')
+const fs = require('fs')
+
+const tempfile = require('tempfile')
 const {gen_testcase} = require("./gen_testcase.js")
 const exec = require('child_process').exec;
 
 const { MontgomeryContext } = require("./montmul_reference.js")
 const mont_context = new MontgomeryContext()
 
-function exec_geth(code) {
+function exec_evmone(code_file) {
     return new Promise(resolve => {
-        exec(path.normalize("go-ethereum/build/bin/evm --statdump --code " + code + " run"), (a, b, sdf) => { 
-            resolve(b.slice(2, -1)) })
+        exec(path.normalize("evmone/build/bin/evmone-bench --benchmark_format=json --benchmark_color=false " + code_file + " 00 01"), (a, b, sdf) => { 
+            resolve(b.includes("iterations") && !b.includes("error_message")) })
     })
 }
 
@@ -29,17 +32,20 @@ let y = 2n
 
 let x_mont = mont_context.to_mont(x)
 let y_mont = mont_context.to_mont(y)
+let expected = mont_context.montmul(x_mont, y_mont)
 
-debugger
-let test_case = gen_testcase("mulmodmont384", mont_context.montmul(x_mont, y_mont).toString(16), x_mont.toString(16), y_mont.toString(16), mont_context.mod, mont_context.mod_inv)
+let test_case = gen_testcase("mulmodmont384", expected.toString(16), x_mont.toString(16), y_mont.toString(16), mont_context.mod, mont_context.mod_inv)
 
-console.log(test_case)
-/*
-exec_geth(test_case).then((result) => {
-    if (result === '01') {
+console.log("testing " + x_mont.toString() + " * " + y_mont.toString() + " % " + mont_context.mod.toString() + " = " +  expected.toString())
+
+code_tempfile = tempfile()
+
+fs.writeFileSync(code_tempfile, test_case)
+
+exec_evmone(code_tempfile).then((result) => {
+    if (result === true) {
         console.log("passed")
     } else {
         console.log("failed")
     }
 })
-*/
