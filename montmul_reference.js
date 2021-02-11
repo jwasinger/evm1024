@@ -1,16 +1,36 @@
 const assert = require("assert")
+const bigintModArith = require('bigint-mod-arith')
 
-function MontgomeryContext() {
-    // TODO assert modulus % 2 != 0
+function count_occupied_limbs(num) {
+    for (let i = 0; ; i++) {
+        if (1n << (BigInt(i) * 64n) > num) {
+            return i
+        }
+    }
+}
+
+function MontgomeryContext(modulus) {
     let self = this
 
-    // r is 1<<modulus_bits
-    self.r = 6350874878119819312338956282401532410528162663560392320966563075034087161851n
+    assert.equal(typeof(modulus), "bigint")
 
-    // TODO method to calculate r_inv.  just hardcode for now
-    self.r_inv = 9915499612839321149637521777990102151350674507940716049588462388200839649614n // (r_inv * r) % mod == 1
-    self.mod = 21888242871839275222246405745257275088548364400416034343698204186575808495617n
-    self.mod_inv = 14042775128853446655n // ((-mod) ** -1) % (1 << limb_size)
+    // TODO assert modulus % 2 != 0
+    assert.notEqual(modulus % 2n, 0n)
+
+    // TODO find num_limbs occupied by modulus
+    let num_limbs = BigInt(count_occupied_limbs(modulus))
+
+    // TODO assert that the modulus doesn't fall in the range 1 << (limb_size * num_limbs -1) .. 1 << (limb_size * num_limbs) - 1
+    // otherwise there won't be an R value that fits within the same number of limbs (so we can't convert to/from montgomery form in these cases)
+
+    self.mod = modulus
+
+    // choose r s.t. r > modulus, r occupies all limbs (num_limbs) and is a power of 2
+    self.r = 1n << (num_limbs * 64n - 1n)
+    self.r_inv = bigintModArith.modInv(self.r, self.mod)
+
+    // the montgomery constant parameter used in multiprecision montmul
+    self.mod_inv = bigintModArith.modInv(-self.mod, (1n << 64n))
 
     self.from_mont = (val_mont) => {
         return (val_mont * self.r_inv) % self.mod
@@ -25,7 +45,8 @@ function MontgomeryContext() {
     }
 }
 
-ctx = new MontgomeryContext()
+const bn128_modulus = 21888242871839275222246405745257275088548364400416034343698204186575808495617n
+ctx = new MontgomeryContext(bn128_modulus)
 x = 2n
 y = 2n
 
