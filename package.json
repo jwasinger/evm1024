@@ -1,6 +1,6 @@
 {
-  "name": "evm384-mp",
-  "version": "1.0.0",
+  "name": "evm1024",
+  "version": "0.0.1",
   "description": "",
   "main": "gen_testcase.js",
   "scripts": {
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jwasinger/evm384-mp.git"
+    "url": "git+https://github.com/jwasinger/evm1024.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jwasinger/evm384-mp/issues"
+    "url": "https://github.com/jwasinger/evm1024/issues"
   },
-  "homepage": "https://github.com/jwasinger/evm384-mp#readme",
+  "homepage": "https://github.com/jwasinger/evm1024#readme",
   "dependencies": {
     "tempfile": "^3.0.0"
   }
