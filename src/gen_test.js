@@ -1,5 +1,5 @@
-const { gen_calldatacopy, gen_equals, gen_return, gen_mstore, gen_mstore_multi, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384 } = require('./util.js')
-const { encode_value, gen_evm384_op, calc_num_limbs, encode_field_params } = require("./evm384_util.js")
+const { gen_calldatacopy, gen_equals, gen_return, gen_mstore, gen_mstore_multi  } = require('./evm_util.js')
+const { encode_value, gen_evm384_op, calc_num_limbs, encode_field_params, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384} = require("./evm384_util.js")
 
 function gen_testcase(operation, expected, x, y, mont_ctx) {
 
@@ -25,7 +25,7 @@ function gen_testcase(operation, expected, x, y, mont_ctx) {
         gen_mstore_multi(offset_y, encode_value(y, num_limbs)),
         gen_mstore_multi(offset_out, encode_value(0, num_limbs))]
 
-    let bench_iterations = 10000;
+    let bench_iterations = 1;
     for (let i = 0; i < bench_iterations; i++) {
         ops = ops.concat(gen_evm384_op(operation, num_limbs, offset_out, offset_x, offset_y, offset_field_params))
     }

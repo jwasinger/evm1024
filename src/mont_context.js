@@ -25,6 +25,7 @@ function MontgomeryContext(modulus) {
     // choose r s.t. r > modulus, r occupies all limbs (num_limbs) and is a power of 2
     self.r = (1n << (num_limbs * 64n)) % self.mod
     self.r_inv = bigintModArith.modInv(self.r, self.mod)
+    self.r_squared = (self.r * self.r) % self.mod
 
     // the montgomery constant parameter used in multiprecision montmul
     self.mod_inv = bigintModArith.modInv(-self.mod, (1n << 64n))
@@ -40,6 +41,8 @@ function MontgomeryContext(modulus) {
     self.montmul = (a_mont, b_mont) => {
         return ((a_mont * b_mont % self.mod) * self.r_inv) % self.mod
     }
+
+    return self
 }
 
 const bn128_modulus = 21888242871839275222246405745257275088548364400416034343698204186575808495617n

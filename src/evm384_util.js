@@ -1,4 +1,4 @@
-const { gen_push } = require("./evm_utils.js")
+const { gen_push, uint16_to_be_hex, uint8_to_hex } = require("./evm_util.js")
 
 function calc_num_limbs(value) {
     return Math.ceil(value.toString(16).length / 16)
@@ -18,13 +18,21 @@ function reverse_endianness(val) {
     return parts.join("")
 }
 
+function encode_offsets(num_limbs, out, x, y, curve_params) {
+    return uint8_to_hex(num_limbs) + 
+        uint16_to_be_hex(out) +
+        uint16_to_be_hex(x) +
+        uint16_to_be_hex(y) +
+        uint16_to_be_hex(curve_params)
+}
+
 function encode_field_params(modulus, modinv) {
     let result = ''
 
     let mod_string = modulus.toString(16)
 
     let num_limbs = Math.ceil(mod_string.length / 16)
-    if (num_limbs == 0 || num_limbs > 6) {
+    if (num_limbs == 0 || num_limbs > 16) {
         throw("word size must be between 1 and 6 64-bit limbs")
     }
 
@@ -84,7 +92,7 @@ function gen_mulmodmont384(num_limbs, offset_out, offset_x, offset_y, offset_mod
 }
 
 module.exports = {
-    EVM384_OPCODES,
+    EVM384_OPS,
     encode_value,
     gen_evm384_op,
     encode_field_params,

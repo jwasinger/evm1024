@@ -14,7 +14,7 @@ function to_padded_hex(value) {
 
 
 // convert a uint64 to a padded little endian hex string
-function uint16_to_be_hex_string(num) {
+function uint16_to_be_hex(num) {
     result = num.toString(16)
     fill_length = 8 - result.length
 
@@ -169,19 +169,12 @@ function gen_equals(offset_result, offset_val1, offset_val2, num_limbs) {
     return result.join("")
 }
 
-
-function encode_offsets(num_limbs, out, x, y, curve_params) {
-    return uint8_to_hex(num_limbs) + 
-        uint16_to_be_hex_string(out) +
-        uint16_to_be_hex_string(x) +
-        uint16_to_be_hex_string(y) +
-        uint16_to_be_hex_string(curve_params)
-}
-
 module.exports = {
     gen_push: gen_push,
     gen_dup: gen_dup,
     gen_swap: gen_swap,
+    uint8_to_hex: uint8_to_hex,
+    uint16_to_be_hex: uint16_to_be_hex,
     // store single 32 byte word at offset
     gen_mstore: gen_mstore,
     gen_mload: gen_mload,
