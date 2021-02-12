@@ -1,54 +1,38 @@
-const { gen_calldatacopy, gen_equals, gen_return, gen_mstore, gen_mstore_multi, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384 } = require('./util.js')
-const { encode_value, gen_evm384_op, calc_num_limbs, encode_field_params } = require("./evm384_util.js")
+const MontgomeryContext = require("./mont_context.js")
+const { gen_from_mont_test, gen_to_mont_test } = require('./gen_test.js')
 
-function gen_testcase(operation, expected, x, y, modulus, modinv) {
+const test_x = 2n
+const test_y = 3n
 
-    const buffering = 32 //mstoremulti currently only writes in multiples of 32 bytes (TODO fix that)
+function gen_tests(modulus) {
+    let mont_ctx = MontgomeryContext(modulus)
 
-    const num_limbs = calc_num_limbs(modulus)
-    const offset_out = 0
-    const offset_x = offset_out + 8 * num_limbs + buffering
-    const offset_y = offset_x + 8 * num_limbs + buffering
-    const offset_field_params = offset_y + 8 * num_limbs + buffering
-    const offset_expected = offset_field_params + 8 * num_limbs + buffering
-    const offset_equality_check_result = offset_expected + 8 * num_limbs + buffering
+    const test_x_mont = mont_ctx.to_mont(test_x)
+    const test_y_mont = mont_ctx.to_mont(test_y)
 
-    // TODO validate field params here
+    assert.equal(test_x, mont_ctx.from_mont(test_x_mont))
+    assert.equal(test_y, mont_ctx.from_mont(test_y_mont))
 
-    let ops = [
-        gen_mstore_multi(offset_expected, encode_value(expected, num_limbs)),
-        gen_mstore_multi(offset_field_params, encode_field_params(modulus, modinv)),
-        gen_mstore_multi(offset_x, encode_value(x, num_limbs)),
-        gen_mstore_multi(offset_y, encode_value(y, num_limbs)),
-        gen_mstore_multi(offset_out, encode_value(0, num_limbs))]
+    let result = [
+        gen_to_mont_test(test_x, mont_ctx),
+        gen_from_mont_test(test_y, mont_ctx),
+        gen_testcase("addmod384", (test_x_mont + test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx),
+        gen_testcase("submod384", (test_x_mont - test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx),
+        gen_test_case("mulmodmont384", mont_ctx.montmul(test_x_mont, test_y_mont), test_x_mont, test_y_mont, mont_ctx),
+    ]
 
-    let bench_iterations = 10000;
-    for (let i = 0; i < bench_iterations; i++) {
-        ops = ops.concat(gen_evm384_op(operation, num_limbs, offset_out, offset_x, offset_y, offset_field_params))
-    }
-
-    ops = ops.concat([
-        gen_equals(offset_equality_check_result, offset_out, offset_expected, num_limbs),
-        gen_return(offset_equality_check_result, 1)
-    ])
-
-    return ops.join("")
+    return result
 }
 
-function gen_from_mont_test(val_norm, mont_ctx) {
-    const val_mont = mont_ctx.to_mont(val_norm)
+// pick a valid (odd) modulus for every limb size
+// test to_mont, from_mont, add/sub/mulmodmont
+const MAX_NUM_LIMBS = 16
 
-    return gen_testcase("mulmodmont384", val_norm.toString(16), val_mont.toString(16), 1n.toString(16), mont_ctx.mod, mont_ctx.mod_inv)
+const tests = []
+
+for (let i = 0; i < MAX_NUM_LIMBS; i++) {
+    mod = (1n << 64n * BigInt(i)) - 1
+    tests = tests.concat(gen_tests(mod))
 }
 
-function gen_to_mont_test(val_norm, mont_ctx) {
-    const val_mont = mont_ctx.from_mont(val_norm)
-
-    return gen_testcase("mulmodmont384", val_mont.toString(16), val_norm.toString(16), mont_ctx.r_squared.toString(16), mont_ctx.mod, mont_ctx.mod_inv)
-}
-
-module.exports = {
-    gen_testcase,
-    gen_to_mont_test,
-    gen_from_mont_test,
-}
+// also generate tests for predfined moduli (e.g. bn128 modulus curve order, bls12381 modulus and curve order)
