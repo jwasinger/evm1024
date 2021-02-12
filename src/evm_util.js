@@ -138,10 +138,7 @@ function gen_mstore_multi(offset, value) {
 
 const constants  = {
     OP_MSTORE8: "53",
-    OP_SHA3: "20",
-    OP_ADDMOD384: "c0",
-    OP_SUBMOD384: "c1",
-    OP_MULMODMONT384: "c2",
+    OP_SHA3: "20"
 }
 
 function gen_sha3(offset, size) {
@@ -182,15 +179,6 @@ function encode_offsets(num_limbs, out, x, y, curve_params) {
 }
 
 module.exports = {
-    gen_addmod384: (num_limbs, offset_out, offset_x, offset_y, offset_mod) => {
-        return gen_push(encode_offsets(num_limbs, offset_out, offset_x, offset_y, offset_mod)) + constants.OP_ADDMOD384
-    },
-    gen_submod384: (num_limbs, offset_out, offset_x, offset_y, offset_mod) => {
-        return gen_push(encode_offsets(num_limbs, offset_out, offset_x, offset_y, offset_mod)) + constants.OP_SUBMOD384
-    },
-    gen_mulmodmont384: (num_limbs, offset_out, offset_x, offset_y, offset_mod) => {
-        return gen_push(encode_offsets(num_limbs, offset_out, offset_x, offset_y, offset_mod)) + constants.OP_MULMODMONT384
-    },
     gen_push: gen_push,
     gen_dup: gen_dup,
     gen_swap: gen_swap,

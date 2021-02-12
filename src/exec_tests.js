@@ -39,12 +39,10 @@ let x_mont = mont_context.to_mont(x)
 let y_mont = mont_context.to_mont(y)
 let expected = mont_context.montmul(x_mont, y_mont)
 
-/*
 let test_case = gen_testcase("mulmodmont384", expected.toString(16), x_mont.toString(16), y_mont.toString(16), mont_context.mod, mont_context.mod_inv)
 console.log("testing " + x_mont.toString() + " * " + y_mont.toString() + " % " + mont_context.mod.toString() + " = " +  expected.toString())
-*/
 
-let test_case = gen_mont_conversion_testcase(x, mont_context)
+//let test_case = gen_mont_conversion_testcase(x, mont_context)
 
 code_tempfile = tempfile(".hex")
 
