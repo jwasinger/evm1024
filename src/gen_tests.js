@@ -18,11 +18,11 @@ function gen_tests(modulus) {
     assert.equal(test_y, mont_ctx.from_mont(test_y_mont))
 
     let result = {}
-    result[modulus.toString(16) + "-to_mont"] =  gen_to_mont_test(test_x, mont_ctx)
-    result[modulus.toString(16) + "-from_mont"] = gen_from_mont_test(test_y, mont_ctx)
-    result[modulus.toString(16) + "-addmod384"] = gen_testcase("addmod384", (test_x_mont + test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
-    result[modulus.toString(16) + "-submod384"] = gen_testcase("submod384", (test_x_mont - test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
-    result[modulus.toString(16) + "-mulmodmont384"] = gen_testcase("mulmodmont384", mont_ctx.montmul(test_x_mont, test_y_mont), test_x_mont, test_y_mont, mont_ctx)
+    result["ffx" + modulus.toString(16).length + "-to_mont"] =  gen_to_mont_test(test_x, mont_ctx)
+    result["ffx" + modulus.toString(16).length + "-from_mont"] = gen_from_mont_test(test_y, mont_ctx)
+    result["ffx" + modulus.toString(16).length + "-addmod384"] = gen_testcase("addmod384", (test_x_mont + test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
+    result["ffx" + modulus.toString(16).length + "-submod384"] = gen_testcase("submod384", (test_x_mont - test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
+    result["ffx" + modulus.toString(16).length + "-mulmodmont384"] = gen_testcase("mulmodmont384", mont_ctx.montmul(test_x_mont, test_y_mont), test_x_mont, test_y_mont, mont_ctx)
 
     return result
 }
