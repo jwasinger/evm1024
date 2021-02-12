@@ -2,15 +2,20 @@ const path = require('path')
 const fs = require('fs')
 
 const tempfile = require('tempfile')
-const {gen_testcase} = require("./gen_testcase.js")
+const { gen_testcase, gen_mont_conversion_testcase } = require("./gen_testcase.js")
 const exec = require('child_process').exec;
 
 const { MontgomeryContext } = require("./montmul_reference.js")
-const mont_context = new MontgomeryContext()
+
+const bn128_modulus = 21888242871839275222246405745257275088548364400416034343698204186575808495617n
+const mont_context = new MontgomeryContext(bn128_modulus)
 
 function exec_evmone(code_file) {
     return new Promise(resolve => {
-        exec(path.normalize("evmone/build/bin/evmone-bench --benchmark_format=json --benchmark_color=false " + code_file + " 00 01"), (a, b, sdf) => { 
+        command = path.normalize("evmone/build/bin/evmone-bench --benchmark_format=json --benchmark_color=false " + code_file + " 00 01")
+        console.log("executing\n" + command)
+
+        exec(command, (a, b, sdf) => { 
             resolve(b.includes("iterations") && !b.includes("error_message")) })
     })
 }
@@ -34,14 +39,18 @@ let x_mont = mont_context.to_mont(x)
 let y_mont = mont_context.to_mont(y)
 let expected = mont_context.montmul(x_mont, y_mont)
 
+/*
 let test_case = gen_testcase("mulmodmont384", expected.toString(16), x_mont.toString(16), y_mont.toString(16), mont_context.mod, mont_context.mod_inv)
-
 console.log("testing " + x_mont.toString() + " * " + y_mont.toString() + " % " + mont_context.mod.toString() + " = " +  expected.toString())
+*/
 
-code_tempfile = tempfile()
+let test_case = gen_mont_conversion_testcase(x, mont_context)
+
+code_tempfile = tempfile(".hex")
 
 fs.writeFileSync(code_tempfile, test_case)
 
+debugger
 exec_evmone(code_tempfile).then((result) => {
     if (result === true) {
         console.log("passed")

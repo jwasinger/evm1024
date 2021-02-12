@@ -4,8 +4,7 @@
   "description": "",
   "main": "gen_testcase.js",
   "scripts": {
-    "build": "node gen_testcase.js > test.hex",
-    "test": "node tester.js | grep \"passed\" | grep ."
+    "test": "node tester.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +18,7 @@
   },
   "homepage": "https://github.com/jwasinger/evm1024#readme",
   "dependencies": {
+    "bigint-mod-arith": "^2.0.8",
     "tempfile": "^3.0.0"
   }
 }

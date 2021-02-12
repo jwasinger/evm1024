@@ -90,19 +90,30 @@ function gen_testcase(operation, expected, x, y, modulus, modinv) {
 
     // TODO validate field params here
 
-    debugger
     let ops = [
         gen_mstore_multi(offset_expected, encode_value(expected, num_limbs)),
         gen_mstore_multi(offset_field_params, encode_field_params(modulus, modinv)),
         gen_mstore_multi(offset_x, encode_value(x, num_limbs)),
         gen_mstore_multi(offset_y, encode_value(y, num_limbs)),
-        gen_mstore_multi(offset_out, encode_value(0, num_limbs)),
-        gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params),
+        gen_mstore_multi(offset_out, encode_value(0, num_limbs))]
+
+    let bench_iterations = 1;
+    for (let i = 0; i < bench_iterations; i++) {
+        ops = ops.concat(gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params))
+    }
+
+    ops = ops.concat([
         gen_equals(offset_equality_check_result, offset_out, offset_expected, num_limbs),
         gen_return(offset_equality_check_result, 1)
-    ]
+    ])
 
     return ops.join("")
+}
+
+function gen_mont_conversion_testcase(val_norm, mont_ctx) {
+    const val_mont = mont_ctx.to_mont(val_norm)
+
+    return gen_testcase("mulmodmont384", val_norm.toString(16), val_mont.toString(16), 1n.toString(16), mont_ctx.mod, mont_ctx.mod_inv)
 }
 
 /*
@@ -113,5 +124,6 @@ gen_testcase("mulmodmont384", 0x7f202ee0640951a5f0eb674ed74980a3b5d4426e012e689b
 */
 
 module.exports = {
-    gen_testcase
+    gen_testcase,
+    gen_mont_conversion_testcase,
 }

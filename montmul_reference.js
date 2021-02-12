@@ -20,13 +20,10 @@ function MontgomeryContext(modulus) {
     // TODO find num_limbs occupied by modulus
     let num_limbs = BigInt(count_occupied_limbs(modulus))
 
-    // TODO assert that the modulus doesn't fall in the range 1 << (limb_size * num_limbs -1) .. 1 << (limb_size * num_limbs) - 1
-    // otherwise there won't be an R value that fits within the same number of limbs (so we can't convert to/from montgomery form in these cases)
-
     self.mod = modulus
 
     // choose r s.t. r > modulus, r occupies all limbs (num_limbs) and is a power of 2
-    self.r = 1n << (num_limbs * 64n - 1n)
+    self.r = (1n << (num_limbs * 64n)) % self.mod
     self.r_inv = bigintModArith.modInv(self.r, self.mod)
 
     // the montgomery constant parameter used in multiprecision montmul
