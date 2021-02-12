@@ -14,7 +14,7 @@ function to_padded_hex(value) {
 
 
 // convert a uint64 to a padded little endian hex string
-function uint32_to_be_hex_string(num) {
+function uint16_to_be_hex_string(num) {
     result = num.toString(16)
     fill_length = 8 - result.length
 
@@ -148,6 +148,17 @@ function gen_sha3(offset, size) {
     return gen_push(size) + gen_push(offset) + constants.OP_SHA3
 }
 
+function uint8_to_hex(val) {
+    let val_str = val.toString(16)
+    if (val_str.length > 2 || val > 255) {
+        throw("invalid num for byte (>255)")
+    } else if (val_str.length == 1) {
+        return '0' + val_str
+    } else {
+        return val_str
+    }
+}
+
 // compare values at memory in offset_val1 and offset_val2.  write 1 (byte) to memory at offset_result if equal, 0 if not.
 function gen_equals(offset_result, offset_val1, offset_val2, num_limbs) {
     let result = [
@@ -162,22 +173,23 @@ function gen_equals(offset_result, offset_val1, offset_val2, num_limbs) {
 }
 
 
-function encode_offsets(out, x, y, curve_params) {
-    return uint32_to_be_hex_string(out) +
-        uint32_to_be_hex_string(x) +
-        uint32_to_be_hex_string(y) +
-        uint32_to_be_hex_string(curve_params)
+function encode_offsets(num_limbs, out, x, y, curve_params) {
+    return uint8_to_hex(num_limbs) + 
+        uint16_to_be_hex_string(out) +
+        uint16_to_be_hex_string(x) +
+        uint16_to_be_hex_string(y) +
+        uint16_to_be_hex_string(curve_params)
 }
 
 module.exports = {
-    gen_addmod384: (offset_out, offset_x, offset_y, offset_mod) => {
-        return gen_push(encode_offsets(offset_out, offset_x, offset_y, offset_mod)) + constants.OP_ADDMOD384
+    gen_addmod384: (num_limbs, offset_out, offset_x, offset_y, offset_mod) => {
+        return gen_push(encode_offsets(num_limbs, offset_out, offset_x, offset_y, offset_mod)) + constants.OP_ADDMOD384
     },
-    gen_submod384: (offset_out, offset_x, offset_y, offset_mod) => {
-        return gen_push(encode_offsets(offset_out, offset_x, offset_y, offset_mod)) + constants.OP_SUBMOD384
+    gen_submod384: (num_limbs, offset_out, offset_x, offset_y, offset_mod) => {
+        return gen_push(encode_offsets(num_limbs, offset_out, offset_x, offset_y, offset_mod)) + constants.OP_SUBMOD384
     },
-    gen_mulmodmont384: (offset_out, offset_x, offset_y, offset_mod) => {
-        return gen_push(encode_offsets(offset_out, offset_x, offset_y, offset_mod)) + constants.OP_MULMODMONT384
+    gen_mulmodmont384: (num_limbs, offset_out, offset_x, offset_y, offset_mod) => {
+        return gen_push(encode_offsets(num_limbs, offset_out, offset_x, offset_y, offset_mod)) + constants.OP_MULMODMONT384
     },
     gen_push: gen_push,
     gen_dup: gen_dup,

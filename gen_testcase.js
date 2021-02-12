@@ -34,10 +34,6 @@ function encode_field_params(modulus, modinv) {
         throw("word size must be between 1 and 6 64-bit limbs")
     }
 
-    let num_limbs_string = '0' + num_limbs.toString(16)
-
-    result += num_limbs_string
-
     result += encode_value(mod_string, num_limbs)
 
     if (typeof(modinv) == "bigint") {
@@ -60,7 +56,7 @@ function encode_value(value, num_limbs) {
     return reverse_endianness("0".repeat(fill_len) + val_str)
 }
 
-function gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params) {
+function gen_evm384_op(operation, num_limbs, offset_out, offset_x, offset_y, offset_field_params) {
     let func = null
 
     if (operation == 'addmod384') {
@@ -73,7 +69,7 @@ function gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_p
         throw("operation must be mulmodmont384, addmod384 or submod384")
     }
 
-    return func(offset_out, offset_x, offset_y, offset_field_params)
+    return func(num_limbs, offset_out, offset_x, offset_y, offset_field_params)
 }
 
 function gen_testcase(operation, expected, x, y, modulus, modinv) {
@@ -99,7 +95,7 @@ function gen_testcase(operation, expected, x, y, modulus, modinv) {
 
     let bench_iterations = 1;
     for (let i = 0; i < bench_iterations; i++) {
-        ops = ops.concat(gen_evm384_op(operation, offset_out, offset_x, offset_y, offset_field_params))
+        ops = ops.concat(gen_evm384_op(operation, num_limbs, offset_out, offset_x, offset_y, offset_field_params))
     }
 
     ops = ops.concat([
