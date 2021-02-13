@@ -10,7 +10,7 @@ function count_occupied_limbs(num) {
 }
 
 function MontgomeryContext(modulus) {
-    let self = this
+    let self = {}
 
     assert.equal(typeof(modulus), "bigint")
 
@@ -40,6 +40,14 @@ function MontgomeryContext(modulus) {
 
     self.montmul = (a_mont, b_mont) => {
         return ((a_mont * b_mont % self.mod) * self.r_inv) % self.mod
+    }
+
+    self.submod = (a, b) => {
+        if (a < b) {
+            a += self.mod
+        }
+
+        return a % self.mod
     }
 
     return self

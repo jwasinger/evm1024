@@ -4,7 +4,8 @@ const { encode_value, gen_evm384_op, calc_num_limbs, encode_field_params, gen_mu
 function gen_testcase(operation, expected, x, y, mont_ctx) {
 
     let modulus = mont_ctx.mod
-    let modinv = mont_ctx.modinv
+    let modinv = mont_ctx.mod_inv
+    debugger
 
     const buffering = 32 //mstoremulti currently only writes in multiples of 32 bytes (TODO fix that)
 
