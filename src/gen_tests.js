@@ -8,7 +8,7 @@ const { gen_from_mont_test, gen_to_mont_test, gen_testcase } = require('./gen_te
 const test_x = 5n
 const test_y = 3n
 
-function gen_tests(modulus) {
+function gen_tests(name, modulus) {
     let mont_ctx = MontgomeryContext(modulus)
 
     const test_x_mont = mont_ctx.to_mont(test_x)
@@ -18,11 +18,11 @@ function gen_tests(modulus) {
     assert.equal(test_y, mont_ctx.from_mont(test_y_mont))
 
     let result = {}
-    result["ffx" + modulus.toString(16).length + "-to_mont"] =  gen_to_mont_test(test_x, mont_ctx)
-    result["ffx" + modulus.toString(16).length + "-from_mont"] = gen_from_mont_test(test_y, mont_ctx)
-    result["ffx" + modulus.toString(16).length + "-addmod384"] = gen_testcase("addmod384", (test_x_mont + test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
-    result["ffx" + modulus.toString(16).length + "-submod384"] = gen_testcase("submod384", (test_x_mont - test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
-    result["ffx" + modulus.toString(16).length + "-mulmodmont384"] = gen_testcase("mulmodmont384", mont_ctx.montmul(test_x_mont, test_y_mont), test_x_mont, test_y_mont, mont_ctx)
+    result[name  + "-to_mont"] =  gen_to_mont_test(test_x, mont_ctx)
+    result[name + "-from_mont"] = gen_from_mont_test(test_y, mont_ctx)
+    result[name + "-addmod384"] = gen_testcase("addmod384", (test_x_mont + test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
+    result[name + "-submod384"] = gen_testcase("submod384", (test_x_mont - test_y_mont) % mont_ctx.mod, test_x_mont, test_y_mont, mont_ctx)
+    result[name + "-mulmodmont384"] = gen_testcase("mulmodmont384", mont_ctx.montmul(test_x_mont, test_y_mont), test_x_mont, test_y_mont, mont_ctx)
 
     return result
 }
@@ -45,7 +45,7 @@ let tests = {}
 
 for (let i = 2; i < MAX_NUM_LIMBS; i++) {
     mod = (1n << 64n * BigInt(i)) - 1n
-    tests = Object.assign(tests, gen_tests(mod))
+    tests = Object.assign(tests, gen_tests("max-mod-"+i.toString(), mod))
 }
 
 // also generate tests for predfined moduli (e.g. bn128 modulus curve order, bls12381 modulus and curve order)

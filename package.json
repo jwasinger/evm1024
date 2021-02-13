@@ -4,7 +4,8 @@
   "description": "",
   "main": "gen_testcase.js",
   "scripts": {
-    "test": "node tester.js"
+    "build": "node src/gen_tests.js",
+    "test": "node src/exec_tests.js"
   },
   "repository": {
     "type": "git",
