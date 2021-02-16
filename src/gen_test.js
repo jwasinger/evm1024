@@ -1,11 +1,10 @@
-const { gen_calldatacopy, gen_equals, gen_return, gen_mstore, gen_mstore_multi  } = require('./evm_util.js')
+const { gen_calldatacopy, gen_equals, gen_return, gen_mstore, gen_mstore_multi, gen_push, gen_pop } = require('./evm_util.js')
 const { encode_value, gen_evm384_op, calc_num_limbs, encode_field_params, gen_mulmodmont384, gen_addmod384, gen_submod384, gen_muldmod384} = require("./evm384_util.js")
 
 function gen_testcase(operation, expected, x, y, mont_ctx) {
 
     let modulus = mont_ctx.mod
     let modinv = mont_ctx.mod_inv
-    debugger
 
     const buffering = 32 //mstoremulti currently only writes in multiples of 32 bytes (TODO fix that)
 
@@ -42,13 +41,13 @@ function gen_testcase(operation, expected, x, y, mont_ctx) {
 function gen_from_mont_test(val_norm, mont_ctx) {
     const val_mont = mont_ctx.to_mont(val_norm)
 
-    return gen_testcase("mulmodmont384", val_norm.toString(16), val_mont.toString(16), 1n.toString(16), mont_ctx)
+    return gen_testcase("mulmodmont384", val_norm, val_mont, 1n, mont_ctx)
 }
 
 function gen_to_mont_test(val_norm, mont_ctx) {
-    const val_mont = mont_ctx.from_mont(val_norm)
+    const val_mont = mont_ctx.to_mont(val_norm)
 
-    return gen_testcase("mulmodmont384", val_mont.toString(16), val_norm.toString(16), mont_ctx.r_squared.toString(16), mont_ctx)
+    return gen_testcase("mulmodmont384", val_mont, val_norm, mont_ctx.r_squared, mont_ctx)
 }
 
 module.exports = {

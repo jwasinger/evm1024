@@ -141,6 +141,10 @@ const constants  = {
     OP_SHA3: "20"
 }
 
+function gen_pop() {
+    return '50'
+}
+
 function gen_sha3(offset, size) {
     return gen_push(size) + gen_push(offset) + constants.OP_SHA3
 }
@@ -171,6 +175,7 @@ function gen_equals(offset_result, offset_val1, offset_val2, num_limbs) {
 
 module.exports = {
     gen_push: gen_push,
+    gen_pop: gen_pop,
     gen_dup: gen_dup,
     gen_swap: gen_swap,
     uint8_to_hex: uint8_to_hex,
