@@ -30,6 +30,9 @@ function encode_field_params(modulus, modinv) {
     let result = ''
 
     let mod_string = modulus.toString(16)
+    if (mod_string.length % 2 != 0) {
+        mod_string = "0" + mod_string
+    }
 
     let num_limbs = Math.ceil(mod_string.length / 16)
     if (num_limbs == 0 || num_limbs > 16) {
@@ -42,6 +45,10 @@ function encode_field_params(modulus, modinv) {
         let modinv_string = modinv.toString(16)
         if (modinv_string.length > 16) {
             throw("modinv is a 64 bit number")
+        }
+
+        if (modinv_string.length % 2 != 0) {
+            modinv_string = "0" + modinv_string
         }
 
         result += reverse_endianness(modinv_string)
