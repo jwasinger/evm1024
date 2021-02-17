@@ -20,6 +20,7 @@
   "homepage": "https://github.com/jwasinger/evm1024#readme",
   "dependencies": {
     "bigint-mod-arith": "^2.0.8",
-    "glob": "^7.1.6"
+    "glob": "^7.1.6",
+    "tempfile": "^3.0.0"
   }
 }

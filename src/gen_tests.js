@@ -41,20 +41,18 @@ function save_tests(directory, tests) {
 
 // pick a valid (odd) modulus for every limb size
 // test to_mont, from_mont, add/sub/mulmodmont
-const MAX_NUM_LIMBS = 10
+const MAX_NUM_LIMBS = 16
 
 console.log("generating tests")
 
 let tests = {}
 
-/*
 // TODO fix this generation and re-incorporate these tests
 // TODO check with limb-size = 1
 for (let i = 2; i < MAX_NUM_LIMBS; i++) {
     mod = (1n << 64n * BigInt(i)) - 1n
     tests = Object.assign(tests, gen_tests("max-mod-"+i.toString(), mod))
 }
-*/
 
 const bn128_curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617n
 tests = Object.assign(tests, gen_tests("bn128_curve_order", bn128_curve_order))

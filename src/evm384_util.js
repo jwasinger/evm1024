@@ -44,6 +44,10 @@ function encode_field_params(modulus, modinv) {
             throw("modinv is a 64 bit number")
         }
 
+        if (modinv_string.length % 2 != 0) {
+            modinv_string = '0' + modinv_string
+        }
+
         result += reverse_endianness(modinv_string)
     } else if (typeof(modinv) != 'undefined') {
         throw("modinv parameter must be a bigint")
