@@ -1,4 +1,4 @@
-# EVM1024 - variable-length modular addition/subtraction and montgomery multiplication up to 1024 bits.
+# EVM1024
 
 This repository contains a test suite and test runner for a new iteration on EVM384-v7 (see the previous [update](https://notes.ethereum.org/@poemm/evm384-update5)) that I am tentatively calling "EVM1024".
 
